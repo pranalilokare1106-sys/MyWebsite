@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Based Tic-Tac-Toe Game Using the Minimax Algorithm</title>
+  <meta name="description" content="A complete Foundations of Artificial Intelligence (FAI) mini project: Unbeatable Tic-Tac-Toe powered by the Minimax Algorithm with heuristic evaluation.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-decorations" aria-hidden="true">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <main class="app-container">
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="project-badge">
+        <span class="badge-dot"></span>
+        FAI Mini Project • Adversarial Search
+      </div>
+      <h1 class="main-title">AI-Based Tic-Tac-Toe</h1>
+      <p class="subtitle">Powered by the <strong>Minimax Algorithm</strong> with Optimal Heuristic Evaluation</p>
+    </header>
+
+    <!-- Scoreboard Section -->
+    <section class="scoreboard" aria-label="Game Scoreboard">
+      <div class="score-card player-card" id="playerScoreCard">
+        <div class="score-role">
+          <span class="mark-symbol x-mark">✕</span>
+          <span class="role-name">Player (X)</span>
+        </div>
+        <div class="score-value" id="playerScore">0</div>
+        <span class="score-subtext">Human</span>
+      </div>
+
+      <div class="score-card draw-card" id="drawScoreCard">
+        <div class="score-role">
+          <span class="mark-symbol draw-mark">−</span>
+          <span class="role-name">Ties / Draws</span>
+        </div>
+        <div class="score-value" id="drawScore">0</div>
+        <span class="score-subtext">Balanced</span>
+      </div>
+
+      <div class="score-card ai-card" id="aiScoreCard">
+        <div class="score-role">
+          <span class="mark-symbol o-mark">◯</span>
+          <span class="role-name">Computer (O)</span>
+        </div>
+        <div class="score-value" id="aiScore">0</div>
+        <span class="score-subtext">Minimax AI</span>
+      </div>
+    </section>
+
+    <!-- Game Settings / First Move Selector -->
+    <section class="game-settings" aria-label="Game Settings">
+      <div class="setting-group">
+        <span class="setting-label">First Move:</span>
+        <div class="pill-toggle" role="radiogroup" aria-label="Choose who starts first">
+          <button type="button" class="pill-btn active" id="firstPlayerBtn" data-starter="player" aria-checked="true" role="radio">
+            Player (X) First
+          </button>
+          <button type="button" class="pill-btn" id="firstAiBtn" data-starter="ai" aria-checked="false" role="radio">
+            AI (O) First
+          </button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <span class="setting-label">AI Intelligence:</span>
+        <div class="pill-toggle" role="radiogroup" aria-label="AI Mode">
+          <button type="button" class="pill-btn active" id="unbeatableModeBtn" data-mode="unbeatable" aria-checked="true" role="radio">
+            Unbeatable (Pure Minimax)
+          </button>
+          <button type="button" class="pill-btn" id="casualModeBtn" data-mode="casual" aria-checked="false" role="radio">
+            Casual (Smart)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Turn Status Banner -->
+    <section class="status-section">
+      <div class="status-banner" id="statusBanner" role="status" aria-live="polite">
+        <div class="status-icon" id="statusIcon">⚡</div>
+        <div class="status-text" id="statusText">Your turn! Click any empty square.</div>
+      </div>
+    </section>
+
+    <!-- 3x3 Tic-Tac-Toe Board -->
+    <section class="board-wrapper">
+      <div class="board" id="board" role="grid" aria-label="3 by 3 Tic-Tac-Toe board">
+        <button type="button" class="cell" data-index="0" role="gridcell" aria-label="Square 1, empty"></button>
+        <button type="button" class="cell" data-index="1" role="gridcell" aria-label="Square 2, empty"></button>
+        <button type="button" class="cell" data-index="2" role="gridcell" aria-label="Square 3, empty"></button>
+        <button type="button" class="cell" data-index="3" role="gridcell" aria-label="Square 4, empty"></button>
+        <button type="button" class="cell" data-index="4" role="gridcell" aria-label="Square 5, empty"></button>
+        <button type="button" class="cell" data-index="5" role="gridcell" aria-label="Square 6, empty"></button>
+        <button type="button" class="cell" data-index="6" role="gridcell" aria-label="Square 7, empty"></button>
+        <button type="button" class="cell" data-index="7" role="gridcell" aria-label="Square 8, empty"></button>
+        <button type="button" class="cell" data-index="8" role="gridcell" aria-label="Square 9, empty"></button>
+      </div>
+    </section>
+
+    <!-- Control Actions -->
+    <section class="controls-section" aria-label="Game Controls">
+      <button type="button" class="btn btn-primary" id="restartRoundBtn">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/>
+        </svg>
+        Restart Round
+      </button>
+
+      <button type="button" class="btn btn-secondary" id="resetScoresBtn">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        Reset Scores
+      </button>
+    </section>
+
+    <!-- FAI Real-Time Telemetry & Minimax Explanation -->
+    <section class="ai-telemetry" id="aiTelemetry">
+      <div class="telemetry-header">
+        <span class="telemetry-title">
+          <svg class="telemetry-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          Minimax Real-Time Telemetry
+        </span>
+        <span class="telemetry-badge" id="telemetryState">Ready</span>
+      </div>
+      <div class="telemetry-grid">
+        <div class="metric-box">
+          <span class="metric-name">Nodes Evaluated</span>
+          <span class="metric-val" id="metricNodes">0</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-name">Computation Time</span>
+          <span class="metric-val" id="metricTime">0 ms</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-name">Best Minimax Score</span>
+          <span class="metric-val" id="metricScore">-</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-name">Target Position</span>
+          <span class="metric-val" id="metricTarget">Square -</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Academic Minimax Theory Accordion / Explainer -->
+    <section class="algorithm-card">
+      <details class="algo-details" open>
+        <summary class="algo-summary">
+          <span>🧠 How the Minimax Algorithm Works (FAI Concepts)</span>
+          <span class="arrow-indicator">▼</span>
+        </summary>
+        <div class="algo-content">
+          <div class="theory-col">
+            <h4>1. Two-Player Zero-Sum Game</h4>
+            <p>Tic-Tac-Toe is modeled as an adversarial game where Computer <strong>(O)</strong> is the <em>Maximizer</em> aiming for the highest score, and Human <strong>(X)</strong> is the <em>Minimizer</em> aiming to minimize Computer's score.</p>
+          </div>
+          <div class="theory-col">
+            <h4>2. Terminal Evaluation Function</h4>
+            <p>When the game reaches a terminal state, an evaluation score is calculated:</p>
+            <ul>
+              <li><strong>AI Wins:</strong> <code>+10 - depth</code> (Rewards faster victories)</li>
+              <li><strong>Player Wins:</strong> <code>-10 + depth</code> (Prefers later losses if inevitable)</li>
+              <li><strong>Draw / Tie:</strong> <code>0</code> (Neutral outcome)</li>
+            </ul>
+          </div>
+          <div class="theory-col">
+            <h4>3. Backtracking & Decision Tree</h4>
+            <p>The algorithm recursively investigates every possible legal move, calculates the minimax value of all descendant board configurations, and backtracks to select the optimal root move.</p>
+          </div>
+          <div class="theory-col">
+            <h4>4. Mathematical Invariability</h4>
+            <p>Under optimal play by both participants, Tic-Tac-Toe is a proven mathematical draw. With Minimax active, the AI will <strong>never lose</strong>; it will either win if the player makes a tactical mistake or draw if the player plays perfectly.</p>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>FAI Academic Mini Project • Created with HTML5, CSS3 &amp; Vanilla JavaScript</p>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
